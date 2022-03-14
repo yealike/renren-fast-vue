@@ -23,6 +23,8 @@
         <el-switch
           v-model="dataForm.showStatus"
           active-color="#13ce66"
+          :active-value="1"
+          :inactive-value="0"
           inactive-color="#ff4949">
         </el-switch>
 
@@ -68,15 +70,34 @@ export default {
         descript: [
           {required: true, message: '介绍不能为空', trigger: 'blur'}
         ],
-        showStatus: [
-          {required: true, message: '显示状态不能为空', trigger: 'blur'}
-        ],
+
         firstLetter: [
-          {required: true, message: '检索首字母不能为空', trigger: 'blur'}
+          {
+            validator: (rule, value, callback) => {
+              if (value == '') {
+                callback(new Error('首字母必须填写'))
+              } else if (!/^[a-zA-Z]$/.test(value)) {
+                callback(new Error('首字母必须a-z或者A-Z之间'))
+              } else {
+                callback()
+              }
+            },
+            trigger: 'blur',
+          },
         ],
-        sort: [
-          {required: true, message: '排序不能为空', trigger: 'blur'}
-        ]
+
+        sort: [{
+          validator: (rule, value, callback) => {
+            if (value == '') {
+              callback(new Error('排序字段必须填写'))
+            } else if (!Number.isInteger(parseInt(value)) || parseInt(value) < 0) {
+              callback(new Error('排序字段必须是一个整数'))
+            } else {
+              callback()
+            }
+          }, trigger: 'blur'
+        }]
+
       }
     }
   },
@@ -116,7 +137,7 @@ export default {
               'name': this.dataForm.name,
               'logo': this.dataForm.logo,
               'descript': this.dataForm.descript,
-              'showStatus': this.dataForm.showStatus === true ? 1 : 0,
+              'showStatus': this.dataForm.showStatus,
               'firstLetter': this.dataForm.firstLetter,
               'sort': this.dataForm.sort
             })
